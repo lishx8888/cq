@@ -1,0 +1,23 @@
+{
+  "name": "_auto_fe996e282f514a35ba17c2a3dfb60e0b",
+  "leadAgentId": "fe996e282f514a35ba17c2a3dfb60e0b",
+  "workspacePath": "h:\\cq",
+  "createdAt": "2026-04-15T11:50:40.524Z",
+  "options": {
+    "workspacePath": "h:\\cq",
+    "isAutoTeam": true
+  },
+  "members": [
+    {
+      "memberId": "team-lead@_auto_fe996e282f514a35ba17c2a3dfb60e0b",
+      "name": "team-lead",
+      "role": "Team Lead - coordinates the team and interacts with the user"
+    },
+    {
+      "memberId": "backend-server@_auto_fe996e282f514a35ba17c2a3dfb60e0b",
+      "name": "backend-server",
+      "role": "启动后端Flask服务器"
+    }
+  ],
+  "isAutoTeam": true
+}

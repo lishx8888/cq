@@ -1,0 +1,38 @@
+[
+  {
+    "id": "msg-1776253848978-jyej9r",
+    "from": "team-lead",
+    "to": "backend-server",
+    "type": "message",
+    "content": "请执行：cd h:/cq/backend && python app.py",
+    "timestamp": "2026-04-15T11:50:48.978Z",
+    "read": true
+  },
+  {
+    "id": "msg-1776253852789-gg02vl",
+    "from": "team-lead",
+    "to": "backend-server",
+    "type": "message",
+    "content": "检查一下服务器是否已经成功启动了？",
+    "timestamp": "2026-04-15T11:50:52.789Z",
+    "read": true
+  },
+  {
+    "id": "msg-1776322035308-4o9s3g",
+    "from": "team-lead",
+    "to": "backend-server",
+    "type": "message",
+    "content": "请启动后端Flask服务器",
+    "timestamp": "2026-04-16T06:47:15.308Z",
+    "read": true
+  },
+  {
+    "id": "msg-1776322076979-0jivk9",
+    "from": "team-lead",
+    "to": "backend-server",
+    "type": "message",
+    "content": "后端服务器启动状态如何？",
+    "timestamp": "2026-04-16T06:47:56.979Z",
+    "read": true
+  }
+]

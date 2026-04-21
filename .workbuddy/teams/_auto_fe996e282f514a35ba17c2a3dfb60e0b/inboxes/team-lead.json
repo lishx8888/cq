@@ -1,0 +1,29 @@
+[
+  {
+    "id": "msg-1776255707122-r7wbut",
+    "from": "backend-server",
+    "to": "team-lead",
+    "type": "message",
+    "content": "✅ 后端Flask服务器已成功启动！\n\n**运行信息：**\n- 进程ID: 1500\n- 端口: 5000\n- 健康检查: `GET /api/health` → `{\"status\":\"ok\"}`\n- 产品API: `GET /api/products` → 正常返回31个产品数据\n\n**可用API端点：**\n- `GET /api/health` - 健康检查\n- `GET /api/products` - 获取产品列表\n- `GET /api/products/<id>` - 获取单个产品\n- `GET /api/categories` - 获取分类列表\n- `GET /api/banners` - 获取轮播图\n- `POST /api/admin/login` - 管理员登录 (用户名: admin, 密码: admin123)\n\n服务器已在后台持续运行中。",
+    "timestamp": "2026-04-15T12:21:47.122Z",
+    "read": true
+  },
+  {
+    "id": "msg-1776322050268-r5yatx",
+    "from": "backend-server",
+    "to": "team-lead",
+    "type": "message",
+    "content": "✅ 后端Flask服务器已经在运行中！\n\n- 端口: 5000\n- 健康检查: `{\"status\":\"ok\"}`\n- 所有API接口正常工作\n\n无需重新启动，服务器持续运行中。",
+    "timestamp": "2026-04-16T06:47:30.268Z",
+    "read": true
+  },
+  {
+    "id": "msg-1776322092168-ub7rbb",
+    "from": "backend-server",
+    "to": "team-lead",
+    "type": "message",
+    "content": "✅ 后端Flask服务器运行正常！\n\n- **状态**: 运行中\n- **端口**: 5000\n- **健康检查**: `{\"status\":\"ok\"}`\n- **进程**: 后台持续运行\n\n所有API接口正常工作。",
+    "timestamp": "2026-04-16T06:48:12.168Z",
+    "read": true
+  }
+]
