@@ -62,6 +62,12 @@ const routes = [
     name: 'AdminMedia',
     component: () => import('@/views/admin/AdminMediaView.vue'),
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin/external-media',
+    name: 'AdminExternalMedia',
+    component: () => import('@/views/admin/AdminExternalMediaView.vue'),
+    meta: { requiresAuth: true }
   }
 ]
 

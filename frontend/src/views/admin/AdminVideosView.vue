@@ -185,6 +185,25 @@
                       <p v-else class="text-primary text-xs">上传中...</p>
                     </div>
                   </div>
+                  <!-- 手动输入视频链接 -->
+                  <div class="mt-3">
+                    <div class="flex gap-2">
+                      <input
+                        v-model="form.video_url"
+                        type="text"
+                        placeholder="输入视频链接（例如：https://example.com/video.mp4）"
+                        class="flex-1 px-3 py-1.5 border border-border rounded-lg text-xs"
+                      />
+                      <button
+                        type="button"
+                        @click="form.video_url = ''"
+                        class="px-3 py-1.5 bg-secondary text-text-secondary rounded-lg text-xs hover:bg-secondary/80"
+                        :disabled="!form.video_url"
+                      >
+                        清除
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Cover Upload -->
@@ -230,6 +249,25 @@
                       </button>
                       <p v-if="!uploadingCover" class="text-text-secondary text-xs">点击上传</p>
                       <p v-else class="text-primary text-xs">上传中...</p>
+                    </div>
+                  </div>
+                  <!-- 手动输入封面链接 -->
+                  <div class="mt-3">
+                    <div class="flex gap-2">
+                      <input
+                        v-model="form.cover_url"
+                        type="text"
+                        placeholder="输入封面链接（例如：https://example.com/cover.jpg）"
+                        class="flex-1 px-3 py-1.5 border border-border rounded-lg text-xs"
+                      />
+                      <button
+                        type="button"
+                        @click="form.cover_url = ''"
+                        class="px-3 py-1.5 bg-secondary text-text-secondary rounded-lg text-xs hover:bg-secondary/80"
+                        :disabled="!form.cover_url"
+                      >
+                        清除
+                      </button>
                     </div>
                   </div>
                 </div>

@@ -94,42 +94,59 @@
               <!-- Image Upload -->
               <div>
                 <label class="block text-sm font-medium mb-2">Banner图片 *</label>
-                <div
-                  class="border-2 border-dashed border-border rounded-xl overflow-hidden transition-colors hover:border-primary"
-                  :class="{ 'border-red-400': submitted && !form.image }"
-                >
-                  <div v-if="form.image" class="relative">
-                    <img :src="form.image" alt="Preview" class="w-full object-cover aspect-video" />
-                    <button
-                      type="button"
-                      @click="form.image = ''"
-                      class="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                      </svg>
-                    </button>
+                <!-- 图片预览区域 -->
+                <div class="relative w-full max-w-md mx-auto mb-3">
+                  <div
+                    v-if="form.image"
+                    class="w-full aspect-video rounded-lg overflow-hidden border-2 border-border relative group transition-all"
+                  >
+                    <img :src="form.image" class="w-full h-full object-cover" />
+                    <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <button type="button" @click.stop="form.image = ''" class="w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                      </button>
+                    </div>
                   </div>
-                  <div v-else class="p-8 text-center">
+                  <div
+                    v-else
+                    class="w-full aspect-video rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-2"
+                    @click="$refs.fileInput.click()"
+                  >
+                    <svg class="w-12 h-12 text-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+                    <span class="text-sm text-text-secondary">点击上传图片</span>
+                    <span class="text-xs text-text-secondary">推荐尺寸: 1920 x 1080 (16:9横版)</span>
+                  </div>
+                </div>
+                <!-- 图片链接输入框 -->
+                <div class="mb-3">
+                  <label class="block text-sm text-text-secondary mb-1">图片链接</label>
+                  <div class="flex gap-2">
                     <input
-                      ref="fileInput"
-                      type="file"
-                      accept="image/*"
-                      @change="handleFileSelect"
-                      class="hidden"
+                      v-model="form.image"
+                      type="text"
+                      placeholder="输入图片链接（例如：https://pic.lishx.dpdns.org/xxx.jpg）"
+                      class="flex-1 px-4 py-3 rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                     />
                     <button
                       type="button"
-                      @click="$refs.fileInput.click()"
-                      class="mx-auto w-16 h-16 rounded-full bg-secondary/50 flex items-center justify-center mb-4 hover:bg-secondary transition-colors"
+                      @click="form.image = ''"
+                      class="px-4 py-3 bg-secondary text-text-secondary rounded-lg hover:bg-secondary/80 transition-colors"
+                      :disabled="!form.image"
+                      :class="{'opacity-50 cursor-not-allowed': !form.image}"
                     >
-                      <svg class="w-8 h-8 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                      </svg>
+                      清除
                     </button>
-                    <p class="text-text-secondary text-sm">点击上传图片</p>
-                    <p class="text-text-secondary text-xs mt-1">推荐尺寸: 1920 x 1080 (16:9横版)</p>
                   </div>
+                </div>
+                <input
+                  ref="fileInput"
+                  type="file"
+                  accept="image/*"
+                  @change="handleFileSelect"
+                  class="hidden"
+                />
+                <div class="text-xs text-text-secondary">
+                  提示：点击图片区域上传本地图片，或直接在输入框中输入图床链接
                 </div>
                 <p v-if="submitted && !form.image" class="text-red-500 text-sm mt-1">请上传Banner图片</p>
               </div>
@@ -236,7 +253,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import AdminLayout from './AdminLayout.vue'
 import { bannerApi } from '@/api'
 
@@ -272,6 +289,16 @@ async function fetchBanners() {
 
 onMounted(() => {
   fetchBanners()
+})
+
+// Watch image input and extract URL if needed
+watch(() => form.value.image, (newImage) => {
+  if (newImage && !newImage.startsWith('http://') && !newImage.startsWith('https://') && !newImage.startsWith('data:')) {
+    const extractedUrl = extractImageUrl(newImage)
+    if (extractedUrl && extractedUrl !== newImage) {
+      form.value.image = extractedUrl
+    }
+  }
 })
 
 function openForm(banner = null) {
@@ -315,6 +342,36 @@ async function handleSubmit() {
     console.error('Failed to save banner:', err)
     submitting.value = false
   }
+}
+
+// Extract URL from various formats (plain URL or Markdown)
+function extractImageUrl(input) {
+  if (!input) return ''
+  
+  // If already a URL, return as-is
+  if (input.startsWith('http://') || input.startsWith('https://')) {
+    return input
+  }
+  
+  // Try to extract URL from Markdown format
+  const markdownMatch = input.match(/!\[.*?\]\((.*?)\)/)
+  if (markdownMatch && markdownMatch[1]) {
+    const url = markdownMatch[1].trim()
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+  }
+  
+  // Try to extract URL from brackets
+  const bracketMatch = input.match(/\((.*?)\)/)
+  if (bracketMatch && bracketMatch[1]) {
+    const url = bracketMatch[1].trim()
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+  }
+  
+  return input
 }
 
 // File upload handler

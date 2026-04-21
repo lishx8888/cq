@@ -254,44 +254,60 @@
               </div>
 
               <div>
-                <label class="block text-sm font-medium mb-2">产品图片 <span class="text-text-secondary text-xs font-normal">（最多5张，拖拽调整顺序，第1张为主图）</span></label>
-                <div class="flex gap-3 flex-wrap">
-                  <!-- 图片槽位：最多5个，支持拖拽 -->
-                  <div
-                    v-for="(slot, idx) in 5"
-                    :key="idx"
-                    class="relative cursor-move"
-                    draggable="true"
-                    @dragstart="onDragStart(idx)"
-                    @dragover.prevent="onDragOver(idx)"
-                    @drop="onDrop(idx)"
-                    @dragend="onDragEnd"
-                  >
-                    <div
-                      v-if="formImages[idx]"
-                      class="w-28 h-28 rounded-lg overflow-hidden border-2 border-border relative group transition-all"
-                      :class="{ 'border-primary ring-2 ring-primary/20': draggedIndex === idx }"
-                    >
-                      <img :src="formImages[idx]" class="w-full h-full object-cover" />
-                      <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <button type="button" @click.stop="removeImage(idx)" class="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center">
-                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <label class="block text-sm font-medium mb-2">产品图片 <span class="text-text-secondary text-xs font-normal">（最多5张，第1张为主图）</span></label>
+                <!-- 图片槽位：最多5个，上下排列 -->
+                <div class="space-y-4">
+                  <div v-for="(slot, idx) in 5" :key="idx" class="flex gap-4 items-center">
+                    <!-- 图片上传区域 -->
+                    <div class="relative w-28 h-28">
+                      <div
+                        v-if="formImages[idx]"
+                        class="w-28 h-28 rounded-lg overflow-hidden border-2 border-border relative group transition-all"
+                      >
+                        <img :src="formImages[idx]" class="w-full h-full object-cover" />
+                        <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <button type="button" @click.stop="removeImage(idx)" class="w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                          </button>
+                        </div>
+                        <span v-if="idx === 0" class="absolute bottom-0 left-0 right-0 text-center text-xs bg-black/50 text-white py-0.5">主图</span>
+                        <span class="absolute top-1 right-1 w-5 h-5 bg-black/50 text-white text-xs rounded-full flex items-center justify-center">{{ idx + 1 }}</span>
+                      </div>
+                      <div
+                        v-else
+                        class="w-28 h-28 rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-1"
+                        @click="triggerFileInput(idx)"
+                      >
+                        <svg class="w-8 h-8 text-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+                        <span class="text-xs text-text-secondary">{{ idx === 0 ? '主图' : `附图${idx + 1}` }}</span>
+                      </div>
+                    </div>
+                    <!-- 图片链接输入框 -->
+                    <div class="flex-1">
+                      <label class="block text-xs text-text-secondary mb-1">{{ idx === 0 ? '主图链接' : `附图${idx + 1}链接` }}</label>
+                      <div class="flex gap-2">
+                        <input
+                          v-model="formImages[idx]"
+                          type="text"
+                          placeholder="输入图片链接（例如：https://pic.lishx.dpdns.org/xxx.jpg）"
+                          class="flex-1 px-4 py-2 border border-border rounded-lg text-sm"
+                        />
+                        <button
+                          type="button"
+                          @click="formImages[idx] = ''"
+                          class="px-3 py-2 bg-secondary text-text-secondary rounded-lg text-sm hover:bg-secondary/80"
+                          :disabled="!formImages[idx]"
+                        >
+                          清除
                         </button>
                       </div>
-                      <span v-if="idx === 0" class="absolute bottom-0 left-0 right-0 text-center text-xs bg-black/50 text-white py-0.5">主图</span>
-                      <span class="absolute top-1 right-1 w-5 h-5 bg-black/50 text-white text-xs rounded-full flex items-center justify-center">{{ idx + 1 }}</span>
-                    </div>
-                    <div
-                      v-else
-                      class="w-28 h-28 rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-1"
-                      @click="triggerFileInput(idx)"
-                    >
-                      <svg class="w-8 h-8 text-border" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
-                      <span class="text-xs text-text-secondary">{{ idx === 0 ? '主图' : `附图${idx + 1}` }}</span>
                     </div>
                   </div>
                 </div>
                 <input ref="fileInput" type="file" accept="image/*" multiple class="hidden" @change="handleFileChange" />
+                <div class="mt-2 text-xs text-text-secondary">
+                  提示：点击图片区域上传本地图片，或直接在输入框中输入图床链接
+                </div>
               </div>
 
               <div>
@@ -306,39 +322,62 @@
 
               <div>
                 <label class="block text-sm font-medium mb-2">详情图片 <span class="text-text-secondary text-xs font-normal">（最多4张，16:9 比例，最宽 1660px，自动压缩至800KB以内）</span></label>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div
-                    v-for="(slot, idx) in 4"
-                    :key="idx"
-                    class="relative"
-                  >
-                    <!-- 已有图片 -->
-                    <div
-                      v-if="formDetailImages[idx]"
-                      class="aspect-video rounded-lg overflow-hidden border-2 border-border relative group cursor-pointer"
-                      @click="removeDetailImage(idx)"
-                    >
-                      <img :src="formDetailImages[idx]" class="w-full h-full object-cover" />
-                      <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                        <span class="text-white text-sm">点击删除</span>
+                <!-- 详情图片槽位：最多4个，上下排列 -->
+                <div class="space-y-4">
+                  <div v-for="(slot, idx) in 4" :key="idx" class="flex gap-4 items-center">
+                    <!-- 图片上传区域 -->
+                    <div class="relative w-40 h-22">
+                      <!-- 已有图片 -->
+                      <div
+                        v-if="formDetailImages[idx]"
+                        class="w-40 h-22 rounded-lg overflow-hidden border-2 border-border relative group cursor-pointer"
+                        @click="removeDetailImage(idx)"
+                      >
+                        <img :src="formDetailImages[idx]" class="w-full h-full object-cover" />
+                        <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span class="text-white text-sm">点击删除</span>
+                        </div>
+                        <span class="absolute top-1 left-1 px-2 py-0.5 bg-black/50 text-white text-xs rounded">{{ idx + 1 }}</span>
                       </div>
-                      <span class="absolute top-1 left-1 px-2 py-0.5 bg-black/50 text-white text-xs rounded">{{ idx + 1 }}</span>
+                      <!-- 上传按钮 -->
+                      <div
+                        v-else
+                        class="w-40 h-22 rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 bg-secondary/20"
+                        @click="triggerDetailFileInput(idx)"
+                      >
+                        <svg class="w-6 h-6 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="text-xs text-text-secondary">{{ idx === 0 ? '上传第1张' : `图片${idx + 1}` }}</span>
+                        <span class="text-xs text-text-secondary/60">16:9</span>
+                      </div>
                     </div>
-                    <!-- 上传按钮 -->
-                    <div
-                      v-else
-                      class="aspect-video rounded-lg border-2 border-dashed border-border hover:border-primary/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 bg-secondary/20"
-                      @click="triggerDetailFileInput(idx)"
-                    >
-                      <svg class="w-8 h-8 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                      </svg>
-                      <span class="text-xs text-text-secondary">{{ idx === 0 ? '上传第1张' : `图片${idx + 1}` }}</span>
-                      <span class="text-xs text-text-secondary/60">16:9</span>
+                    <!-- 图片链接输入框 -->
+                    <div class="flex-1">
+                      <label class="block text-xs text-text-secondary mb-1">详情图片{{ idx + 1 }}链接</label>
+                      <div class="flex gap-2">
+                        <input
+                          v-model="formDetailImages[idx]"
+                          type="text"
+                          placeholder="输入图片链接（例如：https://pic.lishx.dpdns.org/xxx.jpg）"
+                          class="flex-1 px-4 py-2 border border-border rounded-lg text-sm"
+                        />
+                        <button
+                          type="button"
+                          @click="formDetailImages[idx] = ''"
+                          class="px-3 py-2 bg-secondary text-text-secondary rounded-lg text-sm hover:bg-secondary/80"
+                          :disabled="!formDetailImages[idx]"
+                        >
+                          清除
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <input ref="detailFileInput" type="file" accept="image/*" multiple class="hidden" @change="handleDetailFileChange" />
+                <div class="mt-2 text-xs text-text-secondary">
+                  提示：点击图片区域上传本地图片，或直接在输入框中输入图床链接
+                </div>
               </div>
 
               <div>
@@ -553,6 +592,66 @@ const detailFileInput = ref(null)
 const currentDetailSlotIndex = ref(0)
 const formDetailImages = ref(['', '', '', '']) // 最多4张详情图
 
+// 图片链接验证函数
+function validateImageUrl(url) {
+  if (!url) return false
+  return url.startsWith('http://') || url.startsWith('https://')
+}
+
+// 提取URL（支持Markdown格式）
+function extractImageUrl(input) {
+  if (!input) return ''
+  
+  // 如果已经是URL格式，直接返回
+  if (input.startsWith('http://') || input.startsWith('https://')) {
+    return input
+  }
+  
+  // 尝试提取Markdown格式的URL
+  const markdownMatch = input.match(/!\[.*?\]\((.*?)\)/)
+  if (markdownMatch && markdownMatch[1]) {
+    const url = markdownMatch[1].trim()
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+  }
+  
+  // 尝试提取括号中的URL
+  const bracketMatch = input.match(/\((.*?)\)/)
+  if (bracketMatch && bracketMatch[1]) {
+    const url = bracketMatch[1].trim()
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+  }
+  
+  return input
+}
+
+// 监听图片链接变化，自动提取URL
+watch(formImages, (newImages) => {
+  newImages.forEach((url, idx) => {
+    if (url && !validateImageUrl(url)) {
+      const extractedUrl = extractImageUrl(url)
+      if (extractedUrl && extractedUrl !== url) {
+        formImages.value[idx] = extractedUrl
+      }
+    }
+  })
+}, { deep: true })
+
+// 监听详情图片链接变化，自动提取URL
+watch(formDetailImages, (newImages) => {
+  newImages.forEach((url, idx) => {
+    if (url && !validateImageUrl(url)) {
+      const extractedUrl = extractImageUrl(url)
+      if (extractedUrl && extractedUrl !== url) {
+        formDetailImages.value[idx] = extractedUrl
+      }
+    }
+  })
+}, { deep: true })
+
 function openForm(product = null) {
   if (product) {
     editingProduct.value = product
@@ -677,6 +776,7 @@ async function handleFileChange(event) {
         break
       } else {
         alert('上传失败: ' + (err.response?.data?.message || err.message || '请重试'))
+        // 继续处理下一张图片，不要跳出循环
       }
     }
 

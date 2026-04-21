@@ -116,6 +116,17 @@
             媒体库
           </router-link>
           <router-link
+            to="/admin/external-media"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary/50 transition-colors"
+            :class="$route.path === '/admin/external-media' ? 'bg-primary/10 text-primary' : 'text-text-secondary'"
+            @click="closeSidebar"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+            </svg>
+            外接图床
+          </router-link>
+          <router-link
             to="/admin/settings"
             class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-secondary/50 transition-colors"
             :class="$route.path === '/admin/settings' ? 'bg-primary/10 text-primary' : 'text-text-secondary'"
