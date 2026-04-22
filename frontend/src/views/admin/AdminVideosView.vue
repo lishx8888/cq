@@ -577,6 +577,7 @@ async function handleSubmit() {
 
 // Video upload ref
 const videoInput = ref(null)
+const coverInput = ref(null)
 const uploadingVideo = ref(false)
 const uploadingCover = ref(false)
 

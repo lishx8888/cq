@@ -255,7 +255,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import AdminLayout from './AdminLayout.vue'
-import { bannerApi } from '@/api'
+import { bannerApi, uploadApi } from '@/api'
 
 const banners = ref([])
 const loading = ref(false)
@@ -375,7 +375,7 @@ function extractImageUrl(input) {
 }
 
 // File upload handler
-function handleFileSelect(event) {
+async function handleFileSelect(event) {
   const file = event.target.files[0]
   if (!file) return
 
@@ -391,12 +391,18 @@ function handleFileSelect(event) {
     return
   }
 
-  // Convert to base64 for local storage
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    form.value.image = e.target.result
+  try {
+    // Upload file to image hosting service
+    const response = await uploadApi.upload(file)
+    if (response && response.url) {
+      form.value.image = response.url
+    } else {
+      alert('上传失败，请重试')
+    }
+  } catch (error) {
+    console.error('Failed to upload image:', error)
+    alert('上传失败，请检查网络连接')
   }
-  reader.readAsDataURL(file)
 }
 
 // Delete state

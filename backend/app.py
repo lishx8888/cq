@@ -726,7 +726,7 @@ def allowed_video_file(filename):
 @app.route('/api/upload', methods=['POST'])
 @jwt_required()
 def upload_image():
-    """Upload an image file and return the URL."""
+    """Upload an image file to image hosting service and return the URL."""
     if 'file' not in request.files:
         return jsonify({'message': 'No file provided'}), 400
     
@@ -737,22 +737,75 @@ def upload_image():
     if not allowed_file(file.filename):
         return jsonify({'message': 'File type not allowed'}), 400
     
-    # 生成唯一文件名
-    ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else 'jpg'
-    filename = f"{uuid.uuid4().hex}.{ext}"
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    
-    file.save(filepath)
-    
-    # 返回访问URL（相对于后端服务）
-    return jsonify({
-        'url': f'/uploads/{filename}'
-    })
+    try:
+        import urllib.request
+        import json
+        
+        # 图床地址
+        host = 'https://pic.lishx.dpdns.org'
+        upload_url = f'{host}/upload'
+        
+        # 读取文件内容
+        file_content = file.stream.read()
+        
+        # 构建multipart/form-data
+        boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+        parts = []
+        parts.append(f'--{boundary}'.encode('utf-8'))
+        parts.append(f'Content-Disposition: form-data; name="file"; filename="{file.filename}"'.encode('utf-8'))
+        parts.append(f'Content-Type: {file.mimetype}'.encode('utf-8'))
+        parts.append(b'')
+        parts.append(file_content)
+        parts.append(f'--{boundary}--'.encode('utf-8'))
+        
+        data = b'\r\n'.join(parts)
+        
+        # 构建请求
+        headers = {
+            'Content-Type': f'multipart/form-data; boundary={boundary}',
+            'Content-Length': str(len(data)),
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive'
+        }
+        
+        req = urllib.request.Request(upload_url, data=data, headers=headers, method='POST')
+        
+        with urllib.request.urlopen(req, timeout=30) as response:
+            if response.getcode() == 200:
+                response_body = response.read()
+                
+                # 检查是否是gzip压缩的响应
+                content_encoding = response.headers.get('Content-Encoding', '')
+                if 'gzip' in content_encoding:
+                    import gzip
+                    response_body = gzip.decompress(response_body)
+                
+                result = json.loads(response_body.decode('utf-8'))
+                # 图床返回格式: [{"src": "/file/xxx"}]
+                if isinstance(result, list) and len(result) > 0 and 'src' in result[0]:
+                    image_path = result[0]['src']
+                    image_url = f'{host}{image_path}'
+                    return jsonify({'url': image_url})
+                # 或者返回错误
+                elif isinstance(result, dict) and 'error' in result:
+                    return jsonify({'message': f'图床上传失败: {result["error"]}'}), 502
+            
+            return jsonify({'message': f'图床上传失败: HTTP {response.getcode()}'}), 502
+            
+    except Exception as e:
+        print(f"Image upload error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        # 上传到图床失败，返回错误（禁用本地存储）
+        return jsonify({'message': f'图床上传失败: {str(e)}'}), 502
 
 @app.route('/api/upload/video', methods=['POST'])
 @jwt_required()
 def upload_video():
-    """Upload a video file and return the URL."""
+    """Upload a video file to image hosting service and return the URL."""
     if 'file' not in request.files:
         return jsonify({'message': 'No file provided'}), 400
     
@@ -763,21 +816,75 @@ def upload_video():
     if not allowed_video_file(file.filename):
         return jsonify({'message': 'Video file type not allowed. Allowed: mp4, webm, ogg, mov'}), 400
     
-    # 生成唯一文件名
-    ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else 'mp4'
-    filename = f"{uuid.uuid4().hex}.{ext}"
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    
-    file.save(filepath)
-    
-    return jsonify({
-        'url': f'/uploads/{filename}'
-    })
+    try:
+        import urllib.request
+        import json
+        
+        # 图床地址
+        host = 'https://pic.lishx.dpdns.org'
+        upload_url = f'{host}/upload'
+        
+        # 读取文件内容
+        file_content = file.stream.read()
+        
+        # 构建multipart/form-data
+        boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+        parts = []
+        parts.append(f'--{boundary}'.encode('utf-8'))
+        parts.append(f'Content-Disposition: form-data; name="file"; filename="{file.filename}"'.encode('utf-8'))
+        parts.append(f'Content-Type: {file.mimetype}'.encode('utf-8'))
+        parts.append(b'')
+        parts.append(file_content)
+        parts.append(f'--{boundary}--'.encode('utf-8'))
+        
+        data = b'\r\n'.join(parts)
+        
+        # 构建请求
+        headers = {
+            'Content-Type': f'multipart/form-data; boundary={boundary}',
+            'Content-Length': str(len(data)),
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive'
+        }
+        
+        req = urllib.request.Request(upload_url, data=data, headers=headers, method='POST')
+        
+        with urllib.request.urlopen(req, timeout=60) as response:
+            if response.getcode() == 200:
+                response_body = response.read()
+                
+                # 检查是否是gzip压缩的响应
+                content_encoding = response.headers.get('Content-Encoding', '')
+                if 'gzip' in content_encoding:
+                    import gzip
+                    response_body = gzip.decompress(response_body)
+                
+                result = json.loads(response_body.decode('utf-8'))
+                # 图床返回格式: [{"src": "/file/xxx"}]
+                if isinstance(result, list) and len(result) > 0 and 'src' in result[0]:
+                    video_path = result[0]['src']
+                    video_url = f'{host}{video_path}'
+                    return jsonify({'url': video_url})
+                # 或者返回错误
+                elif isinstance(result, dict) and 'error' in result:
+                    return jsonify({'message': f'图床上传失败: {result["error"]}'}), 502
+            
+            return jsonify({'message': f'图床上传失败: HTTP {response.getcode()}'}), 502
+            
+    except Exception as e:
+        print(f"Video upload error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        # 上传到图床失败，返回错误（禁用本地存储）
+        return jsonify({'message': f'图床上传失败: {str(e)}'}), 502
 
 @app.route('/api/upload/cover', methods=['POST'])
 @jwt_required()
 def upload_cover():
-    """Upload a video cover image and return the URL."""
+    """Upload a video cover image to image hosting service and return the URL."""
     if 'file' not in request.files:
         return jsonify({'message': 'No file provided'}), 400
     
@@ -788,16 +895,70 @@ def upload_cover():
     if not allowed_file(file.filename):
         return jsonify({'message': 'Image file type not allowed'}), 400
     
-    # 生成唯一文件名
-    ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else 'jpg'
-    filename = f"cover_{uuid.uuid4().hex}.{ext}"
-    filepath = os.path.join(UPLOAD_FOLDER, filename)
-    
-    file.save(filepath)
-    
-    return jsonify({
-        'url': f'/uploads/{filename}'
-    })
+    try:
+        import urllib.request
+        import json
+        
+        # 图床地址
+        host = 'https://pic.lishx.dpdns.org'
+        upload_url = f'{host}/upload'
+        
+        # 读取文件内容
+        file_content = file.stream.read()
+        
+        # 构建multipart/form-data
+        boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+        parts = []
+        parts.append(f'--{boundary}'.encode('utf-8'))
+        parts.append(f'Content-Disposition: form-data; name="file"; filename="{file.filename}"'.encode('utf-8'))
+        parts.append(f'Content-Type: {file.mimetype}'.encode('utf-8'))
+        parts.append(b'')
+        parts.append(file_content)
+        parts.append(f'--{boundary}--'.encode('utf-8'))
+        
+        data = b'\r\n'.join(parts)
+        
+        # 构建请求
+        headers = {
+            'Content-Type': f'multipart/form-data; boundary={boundary}',
+            'Content-Length': str(len(data)),
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive'
+        }
+        
+        req = urllib.request.Request(upload_url, data=data, headers=headers, method='POST')
+        
+        with urllib.request.urlopen(req, timeout=30) as response:
+            if response.getcode() == 200:
+                response_body = response.read()
+                
+                # 检查是否是gzip压缩的响应
+                content_encoding = response.headers.get('Content-Encoding', '')
+                if 'gzip' in content_encoding:
+                    import gzip
+                    response_body = gzip.decompress(response_body)
+                
+                result = json.loads(response_body.decode('utf-8'))
+                # 图床返回格式: [{"src": "/file/xxx"}]
+                if isinstance(result, list) and len(result) > 0 and 'src' in result[0]:
+                    image_path = result[0]['src']
+                    image_url = f'{host}{image_path}'
+                    return jsonify({'url': image_url})
+                # 或者返回错误
+                elif isinstance(result, dict) and 'error' in result:
+                    return jsonify({'message': f'图床上传失败: {result["error"]}'}), 502
+            
+            return jsonify({'message': f'图床上传失败: HTTP {response.getcode()}'}), 502
+            
+    except Exception as e:
+        print(f"Cover upload error: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        # 上传到图床失败，返回错误（禁用本地存储）
+        return jsonify({'message': f'图床上传失败: {str(e)}'}), 502
 
 # ============= Custom URL API =============
 @app.route('/api/upload/url', methods=['POST'])
