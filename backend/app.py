@@ -1067,5 +1067,32 @@ def delete_media():
     else:
         return jsonify({'code': 404, 'message': 'File not found'})
 
+@app.route('/api/media/batch-delete', methods=['POST'])
+@jwt_required()
+def batch_delete_media():
+    """Batch delete uploaded files."""
+    data = request.get_json()
+    filenames = data.get('filenames', [])
+    
+    if not filenames or not isinstance(filenames, list):
+        return jsonify({'code': 400, 'message': 'Filenames required as a list'})
+    
+    # Security: prevent path traversal
+    for filename in filenames:
+        if '..' in filename or '/' in filename or '\\' in filename:
+            return jsonify({'code': 400, 'message': 'Invalid filename'})
+    
+    deleted_count = 0
+    for filename in filenames:
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        if os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+                deleted_count += 1
+            except Exception as e:
+                print(f"Failed to delete {filename}: {str(e)}")
+    
+    return jsonify({'code': 200, 'message': f'Successfully deleted {deleted_count} files', 'deleted_count': deleted_count})
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -15,7 +15,7 @@
           <span class="font-medium">图床管理</span>
         </div>
         <a 
-          href="https://pic.lishx.dpdns.org/admin-imgtc" 
+          href="https://pic.lishx.dpdns.org/admin-waterfall"
           target="_blank" 
           class="text-sm text-primary hover:underline flex items-center gap-1"
         >
@@ -36,30 +36,11 @@
         ></iframe>
       </div>
     </div>
-
-    <!-- Login Info -->
-    <div class="mt-4 bg-primary/5 border border-primary/20 rounded-lg p-4">
-      <h3 class="font-medium text-primary mb-2">图床登录信息</h3>
-      <div class="space-y-2 text-sm">
-        <div class="flex items-center gap-2">
-          <span class="text-text-secondary w-20">地址：</span>
-          <span class="font-mono">{{ iframeUrl }}</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-text-secondary w-20">账号：</span>
-          <span class="font-mono">admin</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-text-secondary w-20">密码：</span>
-          <span class="font-mono">admin123</span>
-        </div>
-      </div>
-    </div>
   </AdminLayout>
 </template>
 
 <script setup>
 import AdminLayout from './AdminLayout.vue'
 
-const iframeUrl = 'https://pic.lishx.dpdns.org/admin-imgtc'
+const iframeUrl = 'https://pic.lishx.dpdns.org/admin-waterfall'
 </script>
