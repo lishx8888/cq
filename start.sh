@@ -76,12 +76,17 @@ echo "管理员账号: admin"
 echo "管理员密码: admin123"
 echo ""
 
+# Create logs directory if not exists
+mkdir -p logs
+
 # Start backend in background (using virtual environment)
 cd backend
 VENV_PYTHON="../venv/bin/python"
-$VENV_PYTHON app.py &
+nohup $VENV_PYTHON app.py > ../logs/backend.log 2>&1 &
 BACKEND_PID=$!
+echo $BACKEND_PID > ../backend.pid
 echo "后端服务已启动 (PID: $BACKEND_PID, 使用虚拟环境: $VENV_PYTHON)"
+echo "后端日志: ../logs/backend.log"
 cd ..
 
 # Wait for backend to start
@@ -89,31 +94,31 @@ sleep 3
 
 # Start frontend in background
 cd frontend
-npm run dev &
+nohup npm run dev > ../logs/frontend.log 2>&1 &
 FRONTEND_PID=$!
+echo $FRONTEND_PID > ../frontend.pid
 echo "前端服务已启动 (PID: $FRONTEND_PID)"
+echo "前端日志: ../logs/frontend.log"
 cd ..
 
 echo ""
 echo "========================================"
 echo "服务已启动！"
 echo "========================================"
-echo "按 Ctrl+C 停止所有服务"
+echo "访问地址:"
+echo "- 后端服务: http://localhost:5000"
+echo "- 前端服务: http://localhost:5173"
+echo "- 管理后台: http://localhost:5173/admin"
+echo ""
+echo "管理员账号: admin"
+echo "管理员密码: admin123"
+echo ""
+echo "停止服务: ./stop.sh"
+echo "查看日志: tail -f logs/backend.log 或 tail -f logs/frontend.log"
 echo ""
 
-# Function to cleanup on exit
-cleanup() {
-    echo ""
-    echo "正在停止服务..."
-    kill $BACKEND_PID 2>/dev/null
-    kill $FRONTEND_PID 2>/dev/null
-    deactivate 2>/dev/null
-    echo "服务已停止"
-    exit 0
-}
+# Deactivate virtual environment
+deactivate
 
-# Trap SIGINT and SIGTERM
-trap cleanup SIGINT SIGTERM
-
-# Wait for processes
-wait
+# Exit script
+exit 0
