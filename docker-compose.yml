@@ -2,12 +2,10 @@ version: '3.8'
 
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: yourusername/cq-backend:latest
     container_name: cq-backend
     ports:
-      - "5000:5000"
+      - "5008:5000"
     environment:
       - FLASK_ENV=production
       - FLASK_DEBUG=0
@@ -22,12 +20,10 @@ services:
       start_period: 40s
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: yourusername/cq-frontend:latest
     container_name: cq-frontend
     ports:
-      - "80:80"
+      - "5080:80"
     depends_on:
       - backend
     restart: unless-stopped
