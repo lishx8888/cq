@@ -1,24 +1,15 @@
-FROM python:3.12-alpine AS builder
+FROM python:3.12-alpine
 
 WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir --user -r requirements.txt
-
-FROM python:3.12-alpine
-
-WORKDIR /app
-
-COPY --from=builder /root/.local /root/.local
-
-ENV PATH=/root/.local/bin:$PATH
-
-COPY . .
-
-RUN addgroup -g 1000 appuser && \
+RUN pip install --no-cache-dir -r requirements.txt && \
+    addgroup -g 1000 appuser && \
     adduser -D -u 1000 -G appuser appuser && \
     chown -R appuser:appuser /app
+
+COPY . .
 
 USER appuser
 
